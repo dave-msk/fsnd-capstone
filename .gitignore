@@ -2,8 +2,8 @@
 setup.sh
 
 # IDE configs
-.vscode/*
-.idea/*
+.vscode/
+.idea/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

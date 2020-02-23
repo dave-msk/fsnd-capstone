@@ -9,16 +9,23 @@ import flask_migrate as fsk_mgt
 import flask_moment as fsk_mmt
 import flask_cors as fsk_cors
 
-import models
+from core import models
 
 
-def create_app(test_config=None):
+def create_app(test_config=None, database_path=None):
   # create and configure the app
   app = fsk.Flask(__name__)
   fsk_mmt.Moment(app)
-  db, m = models.setup_db(app)
-  fsk_mgt.Migrate(app, db)
+
+  if database_path is None: database_path = os.environ["DATABASE_URL"]
+  app.config["SQLALCHEMY_DATABASE_URI"] = database_path
+  app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+  models.db.init_app(app)
+
+  fsk_mgt.Migrate(app, models.db)
   fsk_cors.CORS(app)
+
+  # TODO: Register routes
 
   return app
 
