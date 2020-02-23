@@ -17,7 +17,6 @@ def setup_db(app, database_path=None):
   db.app = app
   db.init_app(app)
   models = create_models(db)
-  db.create_all()
 
   return db, models
 
