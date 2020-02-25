@@ -9,9 +9,9 @@ from urllib import request as urlreq
 import flask
 from jose import jwt
 
-AUTH0_DOMAIN = "dmskdev.auth0.com"  # TODO: Change this
+AUTH0_DOMAIN = "dmskdev.auth0.com"
 ALGORITHMS = ["RS256"]
-API_AUDIENCE = "coffee_shop"  # TODO: Change this
+API_AUDIENCE = "Casting Agency"
 
 
 # AuthError Exception

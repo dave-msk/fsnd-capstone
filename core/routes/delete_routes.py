@@ -31,7 +31,7 @@ class DeleteRoute(routebase.Route):
   def __init__(self, key, permission=None):
     super(DeleteRoute, self).__init__(permission=permission)
     self._method = "DELETE"
-    self._route, self._fn = globals()["make_delete_%s" % key]
+    self._route, self._fn = globals()["make_delete_%s" % key]()
 
 
 def make_delete_actor():

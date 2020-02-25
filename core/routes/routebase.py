@@ -39,7 +39,7 @@ class Route(object):
     self._validate_method()
     self._validate_fn()
 
-    fn = self._fn()
+    fn = self._fn
     if self._permission: fn = auth.requires_auth(self._permission)(fn)
     fn = fsk_cors.cross_origin()(fn)
     fn = app.route(self._route, methods=[self._method])(fn)

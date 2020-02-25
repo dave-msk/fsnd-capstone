@@ -61,7 +61,7 @@ def make_patch_actor():
   return "/actors/<int:actor_id>", patch_actor
 
 
-def make_post_movie():
+def make_patch_movie():
   def patch_movie(movie_id):
     data = utils.get_json()
     movie = models.Movie.query.get(movie_id)
