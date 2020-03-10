@@ -29,9 +29,8 @@ def gather_get_route_details():
 
 class GetRoute(routebase.Route):
   def __init__(self, key, permission=None):
-    super(GetRoute, self).__init__(permission=permission)
-    self._method = "GET"
-    self._route, self._fn = globals()["make_get_%s" % key]()
+    route, fn = globals()["make_get_%s" % key]()
+    super(GetRoute, self).__init__(route, fn, "GET", permission=permission)
 
 
 def make_get_actors():

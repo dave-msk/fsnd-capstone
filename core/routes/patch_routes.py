@@ -32,9 +32,8 @@ def gather_patch_route_details():
 
 class PatchRoute(routebase.Route):
   def __init__(self, key, permission=None):
-    super(PatchRoute, self).__init__(permission=permission)
-    self._method = "PATCH"
-    self._route, self._fn = globals()["make_patch_%s" % key]()
+    route, fn = globals()["make_patch_%s" % key]()
+    super(PatchRoute, self).__init__(route, fn, "PATCH", permission=permission)
 
 
 def make_patch_actor():

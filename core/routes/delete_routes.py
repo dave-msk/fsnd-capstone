@@ -29,9 +29,9 @@ def gather_delete_route_details():
 
 class DeleteRoute(routebase.Route):
   def __init__(self, key, permission=None):
-    super(DeleteRoute, self).__init__(permission=permission)
-    self._method = "DELETE"
-    self._route, self._fn = globals()["make_delete_%s" % key]()
+    route, fn = globals()["make_delete_%s" % key]()
+    super(DeleteRoute, self).__init__(route, fn, "DELETE",
+                                      permission=permission)
 
 
 def make_delete_actor():

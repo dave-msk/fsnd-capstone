@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import datetime
+import logging
 
 import flask
 
@@ -32,20 +33,25 @@ def gather_post_route_details():
 
 class PostRoute(routebase.Route):
   def __init__(self, key, permission=None):
-    super(PostRoute, self).__init__(permission=permission)
-    self._method = "POST"
-    self._route, self._fn = globals()["make_post_%s" % key]()
+    route, fn = globals()["make_post_%s" % key]()
+    super(PostRoute, self).__init__(route, fn, "POST", permission=permission)
 
 
 def make_post_actor():
   def post_actor():
+    logger = logging.getLogger("Post.Actor")
+
     data = utils.get_json()
+    logger.debug("Input data: {}".format(data))
+
     spec = {"name": str, "age": int, "gender": str}
     base = utils.validate_data(data, spec, cast=True)
     actor = models.Actor(**base)
     if "movies" in data:
       if len(data) > 4: flask.abort(400)
-      movies = utils.validate_data(data["movies"], [int], cast=True)
+      movie_ids = utils.validate_data(data["movies"], [int], cast=True)
+      movies = [models.Movie.query.get(mid) for mid in movie_ids]
+      if any(m is None for m in movies): flask.abort(422)
       actor.movies = movies
     else:
       if len(data) != 3: flask.abort(400)
@@ -67,14 +73,20 @@ def make_post_actor():
 
 def make_post_movie():
   def post_movie():
+    logger = logging.getLogger("Post.Movie")
+
     data = utils.get_json()
+    logger.debug("Input data: {}".format(data))
+
     spec = {"title": str, "release_date": str}
     base = utils.validate_data(data, spec, cast=True)
     base["release_date"] = datetime.date.fromisoformat(base["release_date"])
     movie = models.Movie(**base)
     if "actors" in data:
       if len(data) != 3: flask.abort(400)
-      actors = utils.validate_data(data["actors"], [int], cast=True)
+      actor_ids = utils.validate_data(data["actors"], [int], cast=True)
+      actors = [models.Actor.query.get(aid) for aid in actor_ids]
+      if any(a is None for a in actors): flask.abort(422)
       movie.actors = actors
     else:
       if len(data) != 2: flask.abort(400)

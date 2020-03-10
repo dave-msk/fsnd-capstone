@@ -49,4 +49,5 @@ def downgrade():
     op.drop_table("movie_actor_association")
     op.drop_table("movie")
     op.drop_table("actor")
+    sa.Enum(name="gender_t").drop(op.get_bind(), checkfirst=False)
     # ### end Alembic commands ###

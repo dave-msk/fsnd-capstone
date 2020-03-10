@@ -27,7 +27,7 @@ class Movie(db.Model):
     return {"id": self.id,
             "title": self.title,
             "release_date": self.release_date.isoformat(),
-            "actors": self.actors}
+            "actors": [{"id": a.id, "name": a.name} for a in self.actors]}
 
 
 class Actor(db.Model):
@@ -47,4 +47,4 @@ class Actor(db.Model):
             "name": self.name,
             "age": self.age,
             "gender": self.gender,
-            "movies": self.movies}
+            "movies": [{"id": m.id, "title": m.title} for m in self.movies]}
