@@ -48,3 +48,7 @@ class Actor(db.Model):
             "age": self.age,
             "gender": self.gender,
             "movies": [{"id": m.id, "title": m.title} for m in self.movies]}
+
+
+def is_gender(gender):
+  return gender in {"F", "M"}

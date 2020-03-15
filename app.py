@@ -2,39 +2,18 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
 import logging
 
-import yaml
-import flask as fsk
-import flask_migrate as fsk_mgt
-import flask_moment as fsk_mmt
-import flask_cors as fsk_cors
-
 from core import configs
-from core import errors
-from core import models
+from core import utils
 from core.routes import registry
 from core.routes import routebase
 
 
 def create_app(config=None):
   # create and configure the app
-  app = fsk.Flask(__name__)
-  fsk_mmt.Moment(app)
-
-  config = config or configs.ProductionConfig()
-  app.config.from_object(config)
-  models.db.init_app(app)
-
-  fsk_mgt.Migrate(app, models.db)
-  fsk_cors.CORS(app)
-
-  # Register error handlers
-  errors.add_error(app, 400, "bad request")
-  errors.add_error(app, 404, "resource not found")
-  errors.add_error(app, 422, "unprocessable")
-  errors.add_auth_error(app)
+  config = config or configs.AppConfig()
+  app = utils.create_app_stub(__name__, config)
 
   # Register routes
   broker = registry.make_broker()

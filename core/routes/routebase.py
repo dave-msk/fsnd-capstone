@@ -37,6 +37,9 @@ class Route(object):
     fn = app.route(self._rule, methods=[self._method])(fn)
     return fn
 
+  def call(self, *args, **kwargs):
+    return self._fn(*args, **kwargs)
+
 
 def validate_rule(route):
   if not isinstance(route, str):

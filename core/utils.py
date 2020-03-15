@@ -3,6 +3,31 @@ from __future__ import division
 from __future__ import print_function
 
 import flask
+import flask_migrate
+import flask_moment
+import flask_cors
+
+from core import errors
+from core import models
+
+
+def create_app_stub(import_name, config):
+  # create and configure app
+  app = flask.Flask(import_name)
+  app.config.from_object(config)
+
+  flask_moment.Moment(app)
+  models.db.init_app(app)
+  flask_migrate.Migrate(app, models.db)
+  flask_cors.CORS(app)
+
+  # Register error handlers
+  errors.add_error(app, 400, "bad request")
+  errors.add_error(app, 404, "resource not found")
+  errors.add_error(app, 422, "unprocessable")
+  errors.add_auth_error(app)
+
+  return app
 
 
 def get_json():

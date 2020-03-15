@@ -7,10 +7,14 @@ import flask
 import unittest
 from unittest import mock
 
+from core import configs
+from core import models
+from core import utils
 from core.routes import delete_routes
+from core.routes import restful_test_base
 
 
-class GetRoutesTestCase(unittest.TestCase):
+class DeleteRoutesURLRuleTestCase(unittest.TestCase):
   def setUp(self):
     self._app = mock.create_autospec(flask.Flask)
 
@@ -19,13 +23,53 @@ class GetRoutesTestCase(unittest.TestCase):
     route_fn = self._app.route
     route_fn.assert_called_with(rule, methods=["DELETE"])
 
-  def test_delete_actor(self):
+  def testDeleteActorRule(self):
     route = delete_routes.DeleteRoute("actor")
     self.verify_route(route, "/actors/<int:actor_id>")
 
-  def test_delete_movie(self):
+  def testDeleteMovieRule(self):
     route = delete_routes.DeleteRoute("movie")
     self.verify_route(route, "/movies/<int:movie_id>")
+
+
+class DeleteRoutesTestCase(restful_test_base.RestfulRouteTestBase):
+  def create_app(self):
+    app = utils.create_app_stub(__name__, configs.AppConfig(mode="test"))
+    delete_routes.DeleteRoute("actor").apply(app)
+    delete_routes.DeleteRoute("movie").apply(app)
+    return app
+
+  def testDeleteActor(self):
+    actor = models.Actor.query.get(1)
+    self.assertIsNotNone(actor)
+    expected = {
+        "success": True,
+        "actor_id": actor.id,
+    }
+    res = self.client.delete("/actors/1")
+    self.compare_json(res, 200, expected)
+    actor = models.Actor.query.get(1)
+    self.assertIsNone(actor)
+
+  def testDeleteActorNotExist(self):
+    res = self.client.delete("/actors/2")
+    self.compare_json(res, 404, restful_test_base.ERROR_404)
+
+  def testDeleteMovie(self):
+    movie = models.Movie.query.get(1)
+    self.assertIsNotNone(movie)
+    expected = {
+        "success": True,
+        "movie_id": movie.id,
+    }
+    res = self.client.delete("/movies/1")
+    self.compare_json(res, 200, expected)
+    movie = models.Movie.query.get(1)
+    self.assertIsNone(movie)
+
+  def testDeleteMovieNotExist(self):
+    res = self.client.delete("/movies/2")
+    self.compare_json(res, 404, restful_test_base.ERROR_404)
 
 
 if __name__ == '__main__':

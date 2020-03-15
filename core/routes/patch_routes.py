@@ -41,12 +41,20 @@ def make_patch_actor():
     data = utils.get_json()
     actor = models.Actor.query.get(actor_id)
     if actor is None: flask.abort(404)
+    if any(k not in {"name", "age", "gender", "movies"} for k in data):
+      flask.abort(400)
 
     try:
       maybe_update_attr(actor, data, "name", str, cast=True)
       maybe_update_attr(actor, data, "age", int, cast=True)
-      maybe_update_attr(actor, data, "gender", str, cast=True)
-      maybe_update_attr(actor, data, "movies", [int], cast=True)
+      maybe_update_attr(actor, data, "gender", str,
+                        fn=lambda gender: gender.upper(),
+                        valid_fn=models.is_gender, cast=True)
+      maybe_update_attr(
+          actor, data, "movies", [int],
+          fn=lambda ids: [models.Movie.query.get(id) for id in ids],
+          valid_fn=lambda movies: all(m is not None for m in movies),
+          cast=True)
       models.db.session.commit()
     except:
       models.db.session.rollback()
@@ -65,12 +73,18 @@ def make_patch_movie():
     data = utils.get_json()
     movie = models.Movie.query.get(movie_id)
     if movie is None: flask.abort(404)
+    if any(k not in {"title", "release_date", "actors"} for k in data):
+      flask.abort(400)
 
     try:
       maybe_update_attr(movie, data, "title", str, cast=True)
-      maybe_update_attr(movie, data, "release", str,
+      maybe_update_attr(movie, data, "release_date", str,
                         fn=datetime.date.fromisoformat, cast=True)
-      maybe_update_attr(movie, data, "actors", [int], cast=True)
+      maybe_update_attr(
+          movie, data, "actors", [int],
+          fn=lambda ids: [models.Actor.query.get(id) for id in ids],
+          valid_fn=lambda actors: all(a is not None for a in actors),
+          cast=True)
       models.db.session.commit()
     except:
       models.db.session.rollback()
@@ -84,9 +98,21 @@ def make_patch_movie():
   return "/movies/<int:movie_id>", patch_movie
 
 
-def maybe_update_attr(record, data, key, dtype, fn=None, cast=True):
+def maybe_update_attr(record,
+                      data,
+                      key,
+                      dtype,
+                      valid_fn=None,
+                      fn=None,
+                      cast=True):
   if key in data:
     value = utils.validate_data(data[key], dtype, cast=cast)
-    if fn: value = fn(value)
+    if fn:
+      try:
+        value = fn(value)
+      except:
+        flask.abort(422)
+
+    if valid_fn and not valid_fn(value):
+      flask.abort(422)
     setattr(record, key, value)
-  # return record

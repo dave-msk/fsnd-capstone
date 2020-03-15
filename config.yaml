@@ -1,0 +1,2 @@
+
+database_url: "postgresql://david:sqlDev@localhost:5432/fscpst"

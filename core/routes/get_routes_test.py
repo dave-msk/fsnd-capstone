@@ -7,10 +7,13 @@ import flask
 import unittest
 from unittest import mock
 
+from core import configs
+from core import utils
 from core.routes import get_routes
+from core.routes import restful_test_base
 
 
-class GetRoutesTestCase(unittest.TestCase):
+class GetRoutesURLRuleTestCase(unittest.TestCase):
   def setUp(self):
     self._app = mock.create_autospec(flask.Flask)
 
@@ -19,13 +22,44 @@ class GetRoutesTestCase(unittest.TestCase):
     route_fn = self._app.route
     route_fn.assert_called_with(rule, methods=["GET"])
 
-  def test_get_actors(self):
+  def testGetActorsRule(self):
     route = get_routes.GetRoute("actors")
     self.verify_route(route, "/actors")
 
-  def test_get_movies(self):
+  def testGetMoviesRule(self):
     route = get_routes.GetRoute("movies")
     self.verify_route(route, "/movies")
+
+
+class GetRoutesTestCase(restful_test_base.RestfulRouteTestBase):
+  def create_app(self):
+    app = utils.create_app_stub(__name__, configs.AppConfig(mode="test"))
+    get_routes.GetRoute("actors").apply(app)
+    get_routes.GetRoute("movies").apply(app)
+    return app
+
+  def testGetActors(self):
+    expected = {
+        "success": True,
+        "actors": [{"id": 1,
+                    "name": "Test Actor",
+                    "age": 30,
+                    "gender": "F",
+                    "movies": [{"id": 1, "title": "Test Movie"}]}],
+    }
+    res = self.client.get("/actors")
+    self.compare_json(res, 200, expected)
+
+  def testGetMovies(self):
+    expected = {
+        "success": True,
+        "movies": [{"id": 1,
+                    "title": "Test Movie",
+                    "release_date": "1970-01-01",
+                    "actors": [{"id": 1, "name": "Test Actor"}]}],
+    }
+    res = self.client.get("/movies")
+    self.compare_json(res, 200, expected)
 
 
 if __name__ == '__main__':

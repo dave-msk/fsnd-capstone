@@ -2,32 +2,46 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-
-class Config(object):
-  DEBUG = False
-  TESTING = False
-  SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-  SQLALCHEMY_TRACK_MODIFICATIONS = False
-  ROUTES = [
-      {"get": {"key": "actors", "permission": "get:actors"}},
-      {"get": {"key": "movies", "permission": "get:movies"}},
-      {"post": {"key": "actor", "permission": "post:actors"}},
-      {"post": {"key": "movie", "permission": "post:movies"}},
-      {"patch": {"key": "actor", "permission": "patch:actors"}},
-      {"patch": {"key": "movie", "permission": "patch:movies"}},
-      {"delete": {"key": "actor", "permission": "delete:actors"}},
-      {"delete": {"key": "movie", "permission": "delete:movies"}},
-  ]
+import os
 
 
-class ProductionConfig(Config):
-  SQLALCHEMY_DATABASE_URI = "postgresql://david:sqlDev@localhost:5432/fscpst"
+class AppConfig(object):
+  _MODES = {"prod", "dev", "test"}
 
+  def __init__(self, mode=None):
+    mode = mode or "prod"
+    if mode not in self._MODES:
+      raise ValueError()
 
-class DevelopmentConfig(Config):
-  DEBUG = True
-  SQLALCHEMY_TRACK_MODIFICATIONS = True
+    self.DEBUG = mode == "dev"
+    self.TESTING = mode == "test"
+    self.SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    if mode == "prod":
+      self.SQLALCHEMY_DATABASE_URI = os.environ["DATABASE_URI"]
+    self.SQLALCHEMY_TRACK_MODIFICATIONS = mode == "dev"
 
+    def format_permission(p):
+      return p if mode == "prod" else None
 
-class TestingConfig(Config):
-  TESTING = True
+    routes = None
+    if mode != "test":
+      routes = [
+          {"get": {"key": "actors",
+                   "permission": format_permission("get:actors")}},
+          {"get": {"key": "movies",
+                   "permission": format_permission("get:movies")}},
+          {"post": {"key": "actor",
+                    "permission": format_permission("post:actors")}},
+          {"post": {"key": "movie",
+                    "permission": format_permission("post:movies")}},
+          {"patch": {"key": "actor",
+                     "permission": format_permission("patch:actors")}},
+          {"patch": {"key": "movie",
+                     "permission": format_permission("patch:movies")}},
+          {"delete": {"key": "actor",
+                      "permission": format_permission("delete:actors")}},
+          {"delete": {"key": "movie",
+                      "permission": format_permission("delete:movies")}},
+      ]
+
+    self.ROUTES = routes
