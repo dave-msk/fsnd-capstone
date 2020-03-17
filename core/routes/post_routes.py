@@ -44,17 +44,27 @@ def make_post_actor():
     data = utils.get_json()
     logger.debug("Input data: {}".format(data))
 
-    spec = {"name": str, "age": int, "gender": str}
-    base = utils.validate_data(data, spec, cast=True)
-    actor = models.Actor(**base)
+    if (any(k not in data for k in {"name", "age", "gender"}) or
+        any(k not in {"name", "age", "gender", "movies"} for k in data)):
+      flask.abort(400)
+
+    args = {
+        "name": utils.validate_and_convert(data["name"], str),
+        "age": utils.validate_and_convert(data["age"], int),
+        "gender": utils.validate_and_convert(data["gender"], str,
+                                             convert_fn=lambda g: g.upper(),
+                                             test_fn=models.is_gender,
+                                             cast=True),
+    }
+
     if "movies" in data:
-      if len(data) > 4: flask.abort(400)
-      movie_ids = utils.validate_data(data["movies"], [int], cast=True)
-      movies = [models.Movie.query.get(mid) for mid in movie_ids]
-      if any(m is None for m in movies): flask.abort(422)
-      actor.movies = movies
-    else:
-      if len(data) != 3: flask.abort(400)
+      args["movies"] = utils.validate_and_convert(
+          data["movies"], [int],
+          convert_fn=lambda ids: [models.Movie.query.get(mid) for mid in ids],
+          test_fn=lambda ms: all(m is not None for m in ms),
+          cast=True)
+
+    actor = models.Actor(**args)
 
     try:
       models.db.session.add(actor)
@@ -78,18 +88,23 @@ def make_post_movie():
     data = utils.get_json()
     logger.debug("Input data: {}".format(data))
 
-    spec = {"title": str, "release_date": str}
-    base = utils.validate_data(data, spec, cast=True)
-    base["release_date"] = datetime.date.fromisoformat(base["release_date"])
-    movie = models.Movie(**base)
+    if (any(k not in data for k in {"title", "release_date"}) or
+        any(k not in {"title", "release_date", "actors"} for k in data)):
+      flask.abort(400)
+
+    args = {
+        "title": utils.validate_and_convert(data["title"], str),
+        "release_date": utils.validate_and_convert(
+            data["release_date"], str,
+            convert_fn=lambda s: datetime.datetime.fromisoformat(s)),
+    }
     if "actors" in data:
-      if len(data) != 3: flask.abort(400)
-      actor_ids = utils.validate_data(data["actors"], [int], cast=True)
-      actors = [models.Actor.query.get(aid) for aid in actor_ids]
-      if any(a is None for a in actors): flask.abort(422)
-      movie.actors = actors
-    else:
-      if len(data) != 2: flask.abort(400)
+      args["actors"] = utils.validate_and_convert(
+          data["actors"], [int],
+          convert_fn=lambda ids: [models.Actor.query.get(aid) for aid in ids],
+          test_fn=lambda a_lst: all(a is not None for a in a_lst))
+
+    movie = models.Movie(**args)
 
     try:
       models.db.session.add(movie)

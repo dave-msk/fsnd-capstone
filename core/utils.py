@@ -35,35 +35,47 @@ def get_json():
   return flask.request.get_json()
 
 
-def validate_data(data, spec, cast=True):
-  if isinstance(spec, type):
+def validate_and_convert(data, dtype, convert_fn=None, test_fn=None, cast=True):
+  value = validate_dtype(data, dtype, cast=cast)
+  if convert_fn:
+    try:
+      value = convert_fn(value)
+    except:
+      flask.abort(422)
+
+  if test_fn and not test_fn(value): flask.abort(422)
+  return value
+
+
+def validate_dtype(data, dtype, cast=True):
+  if isinstance(dtype, type):
     if cast:
       try:
-        data = spec(data)
+        data = dtype(data)
       except:
         flask.abort(400)
-    elif not isinstance(spec, type):
+    elif not isinstance(dtype, type):
       flask.abort(400)
     return data
 
-  if isinstance(spec, list):
-    if len(spec) != 1:
+  if isinstance(dtype, list):
+    if len(dtype) != 1:
       raise ValueError()
     if not isinstance(data, (list, tuple)): flask.abort(400)
-    return [validate_data(d, spec[0], cast=cast) for d in data]
+    return [validate_dtype(d, dtype[0], cast=cast) for d in data]
 
-  if isinstance(spec, tuple):
-    if not isinstance(data, (list, tuple)) or len(data) != len(spec):
+  if isinstance(dtype, tuple):
+    if not isinstance(data, (list, tuple)) or len(data) != len(dtype):
       flask.abort(400)
-    return tuple(validate_data(d, s, cast=cast) for d, s in zip(data, spec))
+    return tuple(validate_dtype(d, s, cast=cast) for d, s in zip(data, dtype))
 
-  if isinstance(spec, dict):
-    if not all(isinstance(k, str) for k in spec):
+  if isinstance(dtype, dict):
+    if not all(isinstance(k, str) for k in dtype):
       raise ValueError()
 
-    if not isinstance(data, dict) or not set(spec).issubset(set(data)):
+    if not isinstance(data, dict) or not set(dtype).issubset(set(data)):
       flask.abort(400)
-    return {k: validate_data(data[k], s, cast=cast)
-            for k, s in spec.items()}
+    return {k: validate_dtype(data[k], s, cast=cast)
+            for k, s in dtype.items()}
 
   raise TypeError()

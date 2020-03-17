@@ -3,10 +3,12 @@ from __future__ import division
 from __future__ import print_function
 
 import datetime
+import itertools
 import unittest
 
 import flask
 import flask_testing
+from absl.testing import parameterized
 
 from core import configs
 from core import errors
@@ -45,3 +47,14 @@ class RestfulRouteTestBase(flask_testing.TestCase):
     self.assertEqual(res.status_code, code)
     self.assertTrue(res.is_json)
     self.assertDictEqual(res.json, expected)
+
+
+def generate(**kwargs):
+  def decorator(test_method):
+    keys = sorted(kwargs)
+    combinations = [dict(zip(keys, p)) for p in itertools.product(
+        *[kwargs[k]for k in keys])]
+
+    return parameterized.parameters(*combinations)(test_method)
+
+  return decorator
