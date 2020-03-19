@@ -15,7 +15,8 @@ class Route(object):
   _SIG = {
       "permission": {
           "type": str,
-          "description": "",
+          "description": "Permission string. If `None`, public access "
+                         "is allowed. Defaults to `None`",
       },
   }
 
@@ -41,26 +42,26 @@ class Route(object):
     return self._fn(*args, **kwargs)
 
 
-def validate_rule(route):
-  if not isinstance(route, str):
-    raise TypeError()
-  if not route[0] == "/":
-    raise ValueError()
+def validate_rule(rule):
+  if not isinstance(rule, str):
+    raise TypeError("`rule` must be a string. Given: {}".format(type(rule)))
+  if not rule[0] == "/":
+    raise ValueError("`rule` must start with \"/\". Given: \"{}\"".format(rule))
 
 
 def validate_method(method):
-  if not isinstance(method, str):
-    raise TypeError()
-  if not method in _METHODS:
-    raise ValueError()
+  if method not in _METHODS:
+    raise ValueError("`method` must be one of {}. Given: {}"
+                     .format(_METHODS, method))
 
 
 def validate_fn(fn):
   if not callable(fn):
-    raise TypeError()
+    raise TypeError("`fn` must be callable. Given: {}".format(fn))
 
 
 def validate_permission(permission):
   if permission is None: return
   if not isinstance(permission, str):
-    raise TypeError()
+    raise TypeError("`permission` must be a string. Given: {}"
+                    .format(type(permission)))

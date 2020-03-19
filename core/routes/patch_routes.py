@@ -13,16 +13,21 @@ from core.routes import routebase
 
 def gather_patch_route_details():
   desc = {
-      "short": "",
+      "short": "Patch route for Casting Agency API.",
       "long":
-          """
+          """Creates patch route for Casting Agency API.
+          
+          Available routes:
+          
+            - actor: PATCH /actors/<int:actor_id>
+            - movie: PATCH /movies/<int:movie_id>
           """,
   }
 
   sig = {
       "key": {
           "type": str,
-          "description": "",
+          "description": "Route key, one of [\"actor\", \"movie\"].",
       },
   }
   sig.update(routebase.Route._SIG)  # pylint: disable=protected-access
@@ -40,10 +45,13 @@ def make_patch_actor():
   def patch_actor(actor_id):
     data = utils.get_json()
     actor = models.Actor.query.get(actor_id)
-    if actor is None: flask.abort(404)
+    if actor is None: flask.abort(404)  # Ensure existence of specified actor
+
+    # Validate input keys
     if any(k not in {"name", "age", "gender", "movies"} for k in data):
       flask.abort(400)
 
+    # Update actor
     try:
       maybe_setattr(actor, data, "name", str, cast=True)
       maybe_setattr(actor, data, "age", int, cast=True)
@@ -73,12 +81,14 @@ def make_patch_movie():
   def patch_movie(movie_id):
     data = utils.get_json()
     movie = models.Movie.query.get(movie_id)
-    if movie is None: flask.abort(404)
+    if movie is None: flask.abort(404)  # Ensure existence of specified movie
+
+    # Validate input keys
     if any(k not in {"title", "release_date", "actors"} for k in data):
       flask.abort(400)
 
+    # Update movie
     try:
-      movie.title = utils.validate_and_convert(data["title"], str, cast=True)
       maybe_setattr(movie, data, "title", str, cast=True)
       maybe_setattr(movie, data, "release_date", str,
                     convert_fn=datetime.date.fromisoformat,
@@ -115,23 +125,3 @@ def maybe_setattr(obj,
                                        test_fn=test_fn,
                                        cast=cast)
     setattr(obj, key, value)
-
-#
-# def maybe_update_attr(record,
-#                       data,
-#                       key,
-#                       dtype,
-#                       valid_fn=None,
-#                       fn=None,
-#                       cast=True):
-#   if key in data:
-#     value = utils.validate_dtype(data[key], dtype, cast=cast)
-#     if fn:
-#       try:
-#         value = fn(value)
-#       except:
-#         flask.abort(422)
-#
-#     if valid_fn and not valid_fn(value):
-#       flask.abort(422)
-#     setattr(record, key, value)

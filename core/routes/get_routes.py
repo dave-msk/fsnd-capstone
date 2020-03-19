@@ -10,16 +10,21 @@ from core.routes import routebase
 
 def gather_get_route_details():
   desc = {
-      "short": "",
+      "short": "Factory of get-routes for Casting Agency API",
       "long":
-          """
+          """Creates a GET-route for Casting Agency API.
+          
+          Available routes:
+          
+            - actors: GET /actors
+            - movies: GET /movies
           """,
   }
 
   sig = {
       "key": {
           "type": str,
-          "description": "",
+          "description": "Route key, one of [\"actors\", \"movies\"].",
       },
   }
   sig.update(routebase.Route._SIG)  # pylint: disable=protected-access

@@ -60,7 +60,8 @@ def validate_dtype(data, dtype, cast=True):
 
   if isinstance(dtype, list):
     if len(dtype) != 1:
-      raise ValueError()
+      raise ValueError("`dtype` must be a single when it is a list. Length: {}"
+                       .format(len(dtype)))
     if not isinstance(data, (list, tuple)): flask.abort(400)
     return [validate_dtype(d, dtype[0], cast=cast) for d in data]
 
@@ -71,11 +72,12 @@ def validate_dtype(data, dtype, cast=True):
 
   if isinstance(dtype, dict):
     if not all(isinstance(k, str) for k in dtype):
-      raise ValueError()
+      raise ValueError("`dtype` must be string-keyed. Given: {}".format(dtype))
 
     if not isinstance(data, dict) or not set(dtype).issubset(set(data)):
       flask.abort(400)
     return {k: validate_dtype(data[k], s, cast=cast)
             for k, s in dtype.items()}
 
-  raise TypeError()
+  raise TypeError("`dtype` must either be a type, list, tuple or dict. "
+                  "Given: {}".format(type(dtype)))

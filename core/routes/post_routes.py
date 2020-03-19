@@ -3,7 +3,6 @@ from __future__ import division
 from __future__ import print_function
 
 import datetime
-import logging
 
 import flask
 
@@ -14,16 +13,21 @@ from core.routes import routebase
 
 def gather_post_route_details():
   desc = {
-      "short": "",
+      "short": "Factory of POST-routes for Casting Agency API",
       "long":
-          """
+          """Creates a POST-route for Casting Agency API.
+          
+          Available routes:
+          
+            - actor: POST /actors
+            - movie: POST /movies
           """,
   }
 
   sig = {
       "key": {
           "type": str,
-          "description": "",
+          "description": "Route key, one of [\"actor\", \"movie\"].",
       },
   }
   sig.update(routebase.Route._SIG)  # pylint: disable=protected-access
@@ -39,15 +43,14 @@ class PostRoute(routebase.Route):
 
 def make_post_actor():
   def post_actor():
-    logger = logging.getLogger("Post.Actor")
-
     data = utils.get_json()
-    logger.debug("Input data: {}".format(data))
 
+    # Validate input keys
     if (any(k not in data for k in {"name", "age", "gender"}) or
         any(k not in {"name", "age", "gender", "movies"} for k in data)):
       flask.abort(400)
 
+    # Validate input values and construct actor
     args = {
         "name": utils.validate_and_convert(data["name"], str),
         "age": utils.validate_and_convert(data["age"], int),
@@ -57,6 +60,7 @@ def make_post_actor():
                                              cast=True),
     }
 
+    # Convert movie IDs to Movie objects
     if "movies" in data:
       args["movies"] = utils.validate_and_convert(
           data["movies"], [int],
@@ -83,21 +87,22 @@ def make_post_actor():
 
 def make_post_movie():
   def post_movie():
-    logger = logging.getLogger("Post.Movie")
-
     data = utils.get_json()
-    logger.debug("Input data: {}".format(data))
 
+    # Validate input keys
     if (any(k not in data for k in {"title", "release_date"}) or
         any(k not in {"title", "release_date", "actors"} for k in data)):
       flask.abort(400)
 
+    # Validate input values and construct actor
     args = {
         "title": utils.validate_and_convert(data["title"], str),
         "release_date": utils.validate_and_convert(
             data["release_date"], str,
             convert_fn=lambda s: datetime.datetime.fromisoformat(s)),
     }
+
+    # Convert actor IDs to Actor objects
     if "actors" in data:
       args["actors"] = utils.validate_and_convert(
           data["actors"], [int],

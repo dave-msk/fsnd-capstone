@@ -10,16 +10,21 @@ from core.routes import routebase
 
 def gather_delete_route_details():
   desc = {
-      "short": "",
+      "short": "Factory of DELETE-routes for Casting Agency API",
       "long":
-          """
+          """Creates a DELETE-route for Casting Agency API.
+          
+          Available routes:
+          
+            - actor: DELETE /actors/<int:actor_id>
+            - movie: DELETE /movies/<int:movie_id>
           """,
   }
 
   sig = {
       "key": {
           "type": str,
-          "description": "",
+          "description": "Route key, one of [\"actor\", \"movie\"].",
       },
   }
   sig.update(routebase.Route._SIG)  # pylint: disable=protected-access
@@ -37,7 +42,8 @@ class DeleteRoute(routebase.Route):
 def make_delete_actor():
   def delete_actor(actor_id):
     actor = models.Actor.query.get(actor_id)
-    if actor is None: flask.abort(404)
+    if actor is None: flask.abort(404)  # Ensure existence of specified actor
+
     try:
       models.db.session.delete(actor)
       models.db.session.commit()
@@ -51,7 +57,8 @@ def make_delete_actor():
 def make_delete_movie():
   def delete_movie(movie_id):
     movie = models.Movie.query.get(movie_id)
-    if movie is None: flask.abort(404)
+    if movie is None: flask.abort(404)  # Ensure existence of specified movie
+
     try:
       models.db.session.delete(movie)
       models.db.session.commit()
