@@ -37,6 +37,20 @@ def get_json():
 
 
 def validate_and_convert(data, dtype, convert_fn=None, test_fn=None, cast=True):
+  """Validate data type and perform conversion.
+
+  Args:
+    data: Object to be validated and converted (if applicable)
+    dtype: Expected type of `data`
+    convert_fn: (Optional) Function that converts `data` after type validation.
+    test_fn: (Optional) Function that validates the converted result.
+    cast: Cast `data` to type `dtype` instead of checking if `data` is of
+      type `dtype`. Defaults to True.
+
+  Returns:
+    Final output from casting (if applicable) followed by
+    conversion (if applicable).
+  """
   value = validate_dtype(data, dtype, cast=cast)
   if convert_fn:
     try:
@@ -49,6 +63,8 @@ def validate_and_convert(data, dtype, convert_fn=None, test_fn=None, cast=True):
 
 
 def validate_dtype(data, dtype, cast=True):
+  """Validate if data conforms to the given structure.
+  """
   if isinstance(dtype, type):
     if cast:
       try:
