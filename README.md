@@ -30,7 +30,7 @@ $ pip install -r requirements.txt
 
 ### Setup Database
 
-Set the database URL to the environment variable `DATABASE_URI`, and run the following from `<project_root>/app`:
+Set the PostgreSQL database URL to the environment variable `DATABASE_URI`, and run the following from `<project_root>/app`:
 
 ```bash
 $ python manage.py db upgrade
