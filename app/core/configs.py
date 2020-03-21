@@ -11,12 +11,13 @@ class AppConfig(object):
   def __init__(self, mode=None):
     mode = mode or "prod"
     if mode not in self._MODES:
-      raise ValueError()
+      raise ValueError("`mode` must be one of [\"prod\", \"dev\", \"test\"]. "
+                       "Given: {}".format(mode))
 
     self.DEBUG = mode == "dev"
     self.TESTING = mode == "test"
     self.SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    if mode == "prod":
+    if mode != "test":
       self.SQLALCHEMY_DATABASE_URI = os.environ["DATABASE_URI"]
     self.SQLALCHEMY_TRACK_MODIFICATIONS = mode == "dev"
 

@@ -21,7 +21,7 @@ def upgrade():
     op.create_table(
         "actor",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("name", sa.String(), nullable=False),
+        sa.Column("name", sa.String(128), nullable=False),
         sa.Column("age", sa.Integer(), nullable=False),
         sa.Column("gender", sa.Enum("M", "F", name="gender_t"), nullable=False),
         sa.PrimaryKeyConstraint("id")
@@ -30,7 +30,7 @@ def upgrade():
     op.create_table(
         "movie",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("title", sa.String(), nullable=False),
+        sa.Column("title", sa.String(64), nullable=False),
         sa.Column("release_date", sa.Date(), nullable=False),
         sa.PrimaryKeyConstraint("id")
     )

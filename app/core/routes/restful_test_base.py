@@ -4,18 +4,11 @@ from __future__ import print_function
 
 import datetime
 import itertools
-import unittest
 
-import flask
 import flask_testing
 from absl.testing import parameterized
 
-from core import configs
-from core import errors
 from core import models
-from core import utils
-from core.routes import routebase
-
 
 ERROR_400 = {"success": False, "error": 400, "message": "bad request"}
 ERROR_404 = {"success": False, "error": 404, "message": "resource not found"}

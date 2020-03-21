@@ -16,7 +16,7 @@ class Movie(db.Model):
   __tablename__ = "movie"
 
   id = db.Column(db.Integer, primary_key=True)
-  title = db.Column(db.String, nullable=False)
+  title = db.Column(db.String(64), nullable=False)
   release_date = db.Column(db.Date(), nullable=False)
 
   actors = db.relationship("Actor",
@@ -34,7 +34,7 @@ class Actor(db.Model):
   __tablename__ = "actor"
 
   id = db.Column(db.Integer, primary_key=True)
-  name = db.Column(db.String, nullable=False)
+  name = db.Column(db.String(128), nullable=False)
   age = db.Column(db.Integer, nullable=False)
   gender = db.Column(db.Enum("M", "F", name="gender_t"), nullable=False)
 

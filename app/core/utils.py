@@ -25,6 +25,7 @@ def create_app_stub(import_name, config):
   errors.add_error(app, 400, "bad request")
   errors.add_error(app, 404, "resource not found")
   errors.add_error(app, 422, "unprocessable")
+  errors.add_error(app, 500, "server error")
   errors.add_auth_error(app)
 
   return app
