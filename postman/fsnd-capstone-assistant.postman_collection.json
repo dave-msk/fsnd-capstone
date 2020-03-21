@@ -1,0 +1,384 @@
+{
+	"info": {
+		"_postman_id": "83c636c1-2531-4698-9f23-cd43bb352221",
+		"name": "fsnd-capstone-assistant",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Retrieve Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2cb5a3ad-d688-4188-b606-6921fa8fe096",
+						"exec": [
+							"var data = pm.response.json();",
+							"pm.variables.set(\"token\", data.access_token);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "content-type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{email}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "text"
+						},
+						{
+							"key": "audience",
+							"value": "{{audience}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{AUTH0_OAUTH_API}}",
+					"host": [
+						"{{AUTH0_OAUTH_API}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Actors",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "82f56436-d112-45c0-aa32-1e4b9d923495",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"value contains actors array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.actors).to.be.an('array')",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{actors_api}}",
+					"host": [
+						"{{actors_api}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Movies",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b478e8c7-75f6-412b-97ca-79813865efa0",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"value contains movies array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.movies).to.be.an('array')",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{movies_api}}",
+					"host": [
+						"{{movies_api}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post Actor",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7e286f5b-88f8-45b6-a361-4eaaafef7ba9",
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{actors_api}}",
+					"host": [
+						"{{actors_api}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post Movie",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4180d51d-1686-4c4e-b15d-ca6309e8c7d0",
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{movies_api}}",
+					"host": [
+						"{{movies_api}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Actor",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "49a1ef09-a1d4-4b0a-be30-d82f93a02a2f",
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{actors_api}}/1",
+					"host": [
+						"{{actors_api}}"
+					],
+					"path": [
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Movie",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2bd39253-42ee-4d84-9e5f-a783a6900b58",
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{movies_api}}/1",
+					"host": [
+						"{{movies_api}}"
+					],
+					"path": [
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Actor",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "16b469c5-a8f7-4c49-aa26-f49c39fa492c",
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{actors_api}}/1",
+					"host": [
+						"{{actors_api}}"
+					],
+					"path": [
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Movie",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5958de18-3a30-4684-95c5-2b22ea8d0036",
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{movies_api}}/1",
+					"host": [
+						"{{movies_api}}"
+					],
+					"path": [
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "35cf1913-ccfe-4c89-b4c6-d0bf7d21ecae",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "9ee833fd-2105-419b-9fd8-90cc0645578c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "00e5f7f6-e06f-41d4-b901-ba6796c6fca9",
+			"key": "email",
+			"value": "assistant@casting-agency.com",
+			"type": "string"
+		},
+		{
+			"id": "a042d69b-f7ca-49a0-b204-a90ceb4cda5a",
+			"key": "password",
+			"value": "Assistant12345",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}

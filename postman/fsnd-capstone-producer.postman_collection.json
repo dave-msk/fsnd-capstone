@@ -1,0 +1,519 @@
+{
+	"info": {
+		"_postman_id": "3c9046fc-bbf5-45c3-94c9-aac867b58444",
+		"name": "fsnd-capstone-producer",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Retrieve Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2cb5a3ad-d688-4188-b606-6921fa8fe096",
+						"exec": [
+							"var data = pm.response.json();",
+							"pm.variables.set(\"token\", data.access_token);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "content-type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "{{email}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{password}}",
+							"type": "text"
+						},
+						{
+							"key": "audience",
+							"value": "{{audience}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{client_id}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{client_secret}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{AUTH0_OAUTH_API}}",
+					"host": [
+						"{{AUTH0_OAUTH_API}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Actors",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "82f56436-d112-45c0-aa32-1e4b9d923495",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"value contains actors array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.actors).to.be.an('array')",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{actors_api}}",
+					"host": [
+						"{{actors_api}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Movies",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b478e8c7-75f6-412b-97ca-79813865efa0",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"value contains movies array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.movies).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{movies_api}}",
+					"host": [
+						"{{movies_api}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post Actor",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7e286f5b-88f8-45b6-a361-4eaaafef7ba9",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response body is JSON\", function() {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var res = pm.response.json();",
+							"var actor = res.actor;",
+							"",
+							"pm.test(\"Returned is the same actor as submitted\", function () {",
+							"    var req = JSON.parse(pm.request.body.raw);",
+							"    pm.expect(actor.name).to.eql(req.name);",
+							"    pm.expect(actor.age).to.eql(req.age);",
+							"    pm.expect(actor.gender).to.eql(req.gender);",
+							"    pm.expect(actor.movies).to.be.an(\"array\");",
+							"    pm.expect(actor.movies.length).to.eql(0);",
+							"});",
+							"",
+							"pm.test(\"Returned actor has ID\", function() {",
+							"    pm.expect(actor.id).to.be.a(\"number\");",
+							"});",
+							"",
+							"pm.variables.set(\"actor_id\", actor.id);",
+							"pm.variables.set(\"actor_name\", actor.name);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Test Actor\",\n\t\"age\": 27,\n\t\"gender\": \"M\"\n}"
+				},
+				"url": {
+					"raw": "{{actors_api}}",
+					"host": [
+						"{{actors_api}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post Movie",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4180d51d-1686-4c4e-b15d-ca6309e8c7d0",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response body is JSON\", function() {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var res = pm.response.json();",
+							"var movie = res.movie;",
+							"",
+							"pm.test(\"Returned movie is the same as submitted\", function () {",
+							"    var req = JSON.parse(pm.request.body.raw);",
+							"    pm.expect(movie.title).to.eql(req.title);",
+							"    pm.expect(movie.release_date).to.eql(req.release_date);",
+							"    pm.expect(movie.actors).to.be.an(\"array\");",
+							"    pm.expect(movie.actors.length).to.eql(0);",
+							"});",
+							"",
+							"pm.test(\"Returned movie has ID\", function() {",
+							"    pm.expect(movie.id).to.be.a(\"number\");",
+							"});",
+							"",
+							"pm.variables.set(\"movie_id\", movie.id);",
+							"pm.variables.set(\"movie_title\", movie.title);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"title\": \"Test Movie\",\n\t\"release_date\": \"1988-01-01\"\n}"
+				},
+				"url": {
+					"raw": "{{movies_api}}",
+					"host": [
+						"{{movies_api}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Actor",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "49a1ef09-a1d4-4b0a-be30-d82f93a02a2f",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response body is JSON\", function() {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var res = pm.response.json();",
+							"var actor = res.actor;",
+							"",
+							"pm.test(\"Returned is the same actor as submitted\", function () {",
+							"    var req = JSON.parse(pm.request.body.raw);",
+							"    pm.expect(actor.name).to.eql(req.name);",
+							"    pm.expect(actor.age).to.eql(req.age);",
+							"    pm.expect(actor.gender).to.eql(req.gender);",
+							"    pm.expect(actor.movies).to.be.an(\"array\");",
+							"    pm.expect(actor.movies.length).to.eql(0);",
+							"});",
+							"",
+							"pm.test(\"Returned actor has ID\", function() {",
+							"    pm.expect(actor.id).to.be.a(\"number\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"Patched Actor\",\n\t\"age\": 29,\n\t\"gender\": \"F\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{actors_api}}/{{actor_id}}",
+					"host": [
+						"{{actors_api}}"
+					],
+					"path": [
+						"{{actor_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Patch Movie",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2bd39253-42ee-4d84-9e5f-a783a6900b58",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response body is JSON\", function() {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"var res = pm.response.json();",
+							"var movie = res.movie;",
+							"",
+							"pm.test(\"Returned movie is the same as submitted\", function () {",
+							"    var req = JSON.parse(pm.request.body.raw);",
+							"    pm.expect(movie.title).to.eql(req.title);",
+							"    pm.expect(movie.release_date).to.eql(req.release_date);",
+							"    pm.expect(movie.actors).to.be.an(\"array\");",
+							"    pm.expect(movie.actors.length).to.eql(0);",
+							"});",
+							"",
+							"pm.test(\"Returned movie has ID\", function() {",
+							"    pm.expect(movie.id).to.be.a(\"number\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"title\": \"Patched Movie\",\n\t\"release_date\": \"1990-01-01\"\n}"
+				},
+				"url": {
+					"raw": "{{movies_api}}/{{movie_id}}",
+					"host": [
+						"{{movies_api}}"
+					],
+					"path": [
+						"{{movie_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Actor",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "16b469c5-a8f7-4c49-aa26-f49c39fa492c",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response body is JSON\", function() {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"pm.test(\"Return contains removed actor id\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.actor_id).to.eql(pm.variables.get(\"actor_id\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{actors_api}}/{{actor_id}}",
+					"host": [
+						"{{actors_api}}"
+					],
+					"path": [
+						"{{actor_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Movie",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5958de18-3a30-4684-95c5-2b22ea8d0036",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response body is JSON\", function() {",
+							"    pm.response.to.be.json;",
+							"});",
+							"",
+							"pm.test(\"Return contains removed actor id\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.movie_id).to.eql(pm.variables.get(\"movie_id\"));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{movies_api}}/{{movie_id}}",
+					"host": [
+						"{{movies_api}}"
+					],
+					"path": [
+						"{{movie_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "35cf1913-ccfe-4c89-b4c6-d0bf7d21ecae",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "9ee833fd-2105-419b-9fd8-90cc0645578c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "574a17a5-8c5c-4249-85d7-847398f4d08a",
+			"key": "email",
+			"value": "producer@casting-agency.com",
+			"type": "string"
+		},
+		{
+			"id": "a4612c7c-e228-405e-b7db-550bacef4a48",
+			"key": "password",
+			"value": "Producer12345",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
